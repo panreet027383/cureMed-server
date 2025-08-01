@@ -1,12 +1,24 @@
 var UsercolRef = require("../model/userModel");
 var jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
 
-function doSignup(req, resp) 
+
+async function doSignup(req, resp) 
 {
-    var userCol = new UsercolRef(req.body);
+    const { uid , pwd ,ut } = req.body;
+    const existingUser = await UserModel.findOne({ uid });
+            if (existingUser) {
+            return res.json({ status: false, msg: "User already exists" });
+        }
 
-    userCol.save().then((doc) => 
+        const saltRounds = 10;
+        const hashedPwd = await bcrypt.hash(pwd, saltRounds);
+
+        var userCol = new UsercolRef({ uid , pwd: hashedPwd , ut});
+
+        userCol.save().then((doc) => 
         {
+
             let jtoken=jwt.sign({uid:req.body.uid},process.env.SEC_KEY,{expiresIn:"1h"});
             resp.json({ status: true, msg: "Sign Up ", obj: doc , token:jtoken });
         })
