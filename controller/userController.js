@@ -6,9 +6,9 @@ const bcrypt = require("bcrypt");
 async function doSignup(req, resp) 
 {
     const { uid , pwd ,ut } = req.body;
-    const existingUser = await UserModel.findOne({ uid });
+    const existingUser = await UserColRef.findOne({ uid });
             if (existingUser) {
-            return res.json({ status: false, msg: "User already exists" });
+            return resp.json({ status: false, msg: "User already exists" });
         }
 
         const saltRounds = 10;
